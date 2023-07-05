@@ -3,7 +3,40 @@
 import { app, protocol, BrowserWindow } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
+const log = require("electron-log");
+const { autoUpdater } = require("electron-updater");
+const path = require("path");
 const isDevelopment = process.env.NODE_ENV !== "production";
+
+log.transports.file.resolvePath = () =>
+  path.join("E:/jsframework/electron/vuetify_au_app/", "logs/main.log");
+
+log.log("version " + app.getVersion());
+
+Object.defineProperty(app, "isPackaged", {
+  get() {
+    return true;
+  },
+});
+
+autoUpdater.updateConfigPath = path.join(
+  __dirname,
+  "../dev-app-update.yml" // change path if needed
+);
+
+autoUpdater.setFeedURL({
+  provider: "generic",
+  url: "https://autoupdate-au.s3.ap-south-1.amazonaws.com",
+});
+
+// autoUpdater.setFeedURL({
+//   provider: "github",
+//   owner: "prajapatidk",
+//   repo: "vuetify_au_app",
+//   private: true,
+// });
+
+autoUpdater.autoDownload = false;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -62,6 +95,32 @@ app.on("ready", async () => {
     }
   }
   createWindow();
+  autoUpdater.checkForUpdates();
+});
+
+autoUpdater.on("checking-for-update", (info) => {
+  log.info("checking-for-update", info);
+});
+
+autoUpdater.on("update-available", (info) => {
+  log.info("update-available", info);
+  autoUpdater.autoDownload = true;
+});
+
+autoUpdater.on("update-not-available", (info) => {
+  log.info("update-not-available-3", info);
+});
+
+autoUpdater.on("error", (info) => {
+  log.info("error-4", info);
+});
+
+autoUpdater.on("download-process", (progressTrack) => {
+  log.info(progressTrack);
+});
+
+autoUpdater.on("update-downloaded", (info) => {
+  log.info("update-downloaded-6", info);
 });
 
 // Exit cleanly on request from parent process in development mode.

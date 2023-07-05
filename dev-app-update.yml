@@ -1,0 +1,5 @@
+provider: github
+private: true
+owner: prajapatidk
+repo: vuetify_au_app
+updaterCacheDirName: vuetify-au-update
